@@ -1,8 +1,8 @@
 # Access and reproducibility limitations
 
-1. The benchmark inputs are not distributed. `ispd2015_fix` and the ICCAD 2017
-   inputs are compatibility-processed datasets; their hashes are provided only
-   as provenance anchors.
+1. The benchmark inputs are not distributed. The evaluated ISPD 2015 and
+   ICCAD 2017 inputs are compatibility-processed datasets; their hashes are
+   provenance anchors rather than redistributed benchmark content.
 2. Cadence Innovus execution took place in a restricted institutional
    environment. The raw logs, reports, licence configuration, and complete
    environment are not available for external redistribution.
@@ -16,3 +16,6 @@
 5. The evidence supports the finite, processed benchmark comparisons recorded
    here. It does not support statistical-significance claims or broad
    population-level generalization.
+6. The complete XPlace/RAOP source tree is not distributed. The public
+   implementation diff and protocol document the equal-route controller but do
+   not by themselves reproduce the licensed end-to-end flow.

@@ -1,0 +1,276 @@
+diff --git a/main.py b/main.py
+index 3f1826f..a347244 100644
+--- a/main.py
++++ b/main.py
+@@ -42,6 +42,22 @@ def get_option():
+     parser.add_argument('--use_cell_inflate', type=str2bool, default=False, help='use cell inflation')
+     parser.add_argument('--use_cell_inflate_momentum', type=str2bool, default=False, help='use momentum cell inflation')
+     parser.add_argument('--use_cell_inflate_momentum_xy', type=str2bool, default=False, help='use directional momentum cell inflation')
++    parser.add_argument(
++        '--equal_route_budget_control',
++        type=str2bool,
++        default=False,
++        help=(
++            'experiment-only control that keeps placement refinement and GR '
++            'evaluation active for an exact number of routability rounds after '
++            'the policy actuation would otherwise terminate'
++        ),
++    )
++    parser.add_argument(
++        '--equal_route_budget_rounds',
++        type=int,
++        default=15,
++        help='exact number of routability-optimization rounds for the equal-route-budget control',
++    )
+     parser.add_argument('--route_policy_probe_only', type=str2bool, default=False, help='stop after selecting the evaluation routing policy')
+     parser.add_argument('--routing_threshold_strong_mean', type=float, default=0.010, help='strong-hotspot mean threshold')
+     parser.add_argument('--routing_threshold_top1_mass', type=float, default=0.20, help='strong-hotspot top-1-percent mass threshold')
+diff --git a/src/core/route_force.py b/src/core/route_force.py
+index 8e7cbf2..6003137 100644
+--- a/src/core/route_force.py
++++ b/src/core/route_force.py
+@@ -675,6 +675,11 @@ def _select_legacy_min_area_inc(args, inflation_policy):
+ 
+ 
+ def _select_policy_max_route_opt(args, inflation_policy):
++    if getattr(args, "equal_route_budget_control", False):
++        equal_route_budget_rounds = int(args.equal_route_budget_rounds)
++        if equal_route_budget_rounds <= 0:
++            raise ValueError("equal_route_budget_rounds must be positive.")
++        return equal_route_budget_rounds
+     max_route_opt = int(args.max_route_opt)
+     if inflation_policy == "scalar":
+         return int(getattr(args, "max_route_opt_scalar", max_route_opt))
+diff --git a/src/param_scheduler.py b/src/param_scheduler.py
+index 18b413f..2046e61 100644
+--- a/src/param_scheduler.py
++++ b/src/param_scheduler.py
+@@ -269,7 +269,13 @@ class ParamScheduler:
+         self.start_route_iter = None
+         self.curr_optimizer_cnt = 0
+         self.prev_optimizer_cnt = 0
+-        self.max_route_opt = args.max_route_opt
++        if getattr(args, "equal_route_budget_control", False):
++            equal_route_budget_rounds = int(args.equal_route_budget_rounds)
++            if equal_route_budget_rounds <= 0:
++                raise ValueError("equal_route_budget_rounds must be positive.")
++            self.max_route_opt = equal_route_budget_rounds
++        else:
++            self.max_route_opt = args.max_route_opt
+         self.gr_sol_recorder = []
+         self.gr_solution_policy = None
+ 
+diff --git a/src/run_placement_nesterov.py b/src/run_placement_nesterov.py
+index 6582bf8..e0d5184 100644
+--- a/src/run_placement_nesterov.py
++++ b/src/run_placement_nesterov.py
+@@ -2,6 +2,19 @@ from utils import *
+ from src import *
+ from functools import partial
+ 
++
++def _equal_route_budget_enabled(args):
++    return bool(getattr(args, "equal_route_budget_control", False))
++
++
++def _route_budget_can_continue(args, ps):
++    return (
++        _equal_route_budget_enabled(args)
++        and ps.enable_route
++        and ps.curr_optimizer_cnt < ps.max_route_opt
++    )
++
++
+ def get_trunc_node_pos_fn(mov_node_size, data):
+     node_pos_lb = mov_node_size / 2 + data.die_ll + 1e-4 
+     node_pos_ub = data.die_ur - mov_node_size / 2 + data.die_ll - 1e-4
+@@ -134,6 +147,23 @@ def global_placement_main(gpdb, rawdb, ps: ParamScheduler, data: PlaceData, args
+     # exit(0)
+     terminate_signal = False
+     route_early_terminate_signal = False
++    equal_route_budget_control = _equal_route_budget_enabled(args)
++    route_actuation_frozen = False
++    route_actuation_frozen_round = None
++    if equal_route_budget_control:
++        if not args.use_cell_inflate:
++            raise ValueError(
++                "equal_route_budget_control requires use_cell_inflate=True."
++            )
++        if args.use_route_force:
++            raise ValueError(
++                "equal_route_budget_control does not support use_route_force=True."
++            )
++        logger.info(
++            "Equal route budget control | enabled: True, optimization rounds: %d, "
++            "expected GR candidates: %d"
++            % (ps.max_route_opt, ps.max_route_opt + 1)
++        )
+     log_info = False
+     timing_cali_thrs_overflow = 0.5
+     timing_calibration = False
+@@ -230,7 +260,11 @@ def global_placement_main(gpdb, rawdb, ps: ParamScheduler, data: PlaceData, args
+             terminate_signal = False  # reset signal
+             logger.info("Re-run std cell placement with fixed macros.")
+ 
+-        if ps.use_cell_inflate and ps.curr_optimizer_cnt < ps.max_route_opt:
++        if (
++            ps.use_cell_inflate and ps.curr_optimizer_cnt < ps.max_route_opt
++        ) or (
++            route_actuation_frozen and _route_budget_can_continue(args, ps)
++        ):
+             if terminate_signal:
+                 terminate_signal = False  # reset signal
+                 ps.start_route_opt = True
+@@ -275,18 +309,58 @@ def global_placement_main(gpdb, rawdb, ps: ParamScheduler, data: PlaceData, args
+                     constraint_fn=trunc_node_pos_fn, visualize=args.visualize_cgmap
+                 )  # ps.use_cell_inflate is updated in route_inflation
+                 if not ps.use_cell_inflate:
+-                    route_early_terminate_signal = True
+-                    terminate_signal = True
+-                    logger.info("Early stop cell inflation...")
++                    if equal_route_budget_control:
++                        route_actuation_frozen = True
++                        if route_actuation_frozen_round is None:
++                            route_actuation_frozen_round = ps.curr_optimizer_cnt
++                        logger.info(
++                            "Equal route budget control | policy actuation frozen at "
++                            "round %d; continuing placement refinement and GR evaluation"
++                            % ps.curr_optimizer_cnt
++                        )
++                    else:
++                        route_early_terminate_signal = True
++                        terminate_signal = True
++                        logger.info("Early stop cell inflation...")
+                 if output is not None:
+                     gr_metrics, new_mov_node_size, new_expand_ratio = output
+                     if gr_metrics is not None:
+                         ps.push_gr_sol(gr_metrics, hpwl, overflow, mov_node_pos)
++                elif equal_route_budget_control and route_actuation_frozen:
++                    ps.rerun_route = True
++                    gr_metrics = run_gr_and_fft_main(
++                        args, logger, data, rawdb, gpdb, ps, mov_node_pos,
++                        constraint_fn=trunc_node_pos_fn,
++                        skip_m1_route=True,
++                        report_gr_metrics_only=True,
++                        visualize=args.visualize_cgmap,
++                    )
++                    ps.rerun_route = False
++                    ps.push_gr_sol(gr_metrics, hpwl, overflow, mov_node_pos)
++            elif equal_route_budget_control and route_actuation_frozen:
++                logger.info(
++                    "Equal route budget control | frozen-actuation GR evaluation at round %d"
++                    % ps.curr_optimizer_cnt
++                )
++                ps.rerun_route = True
++                gr_metrics = run_gr_and_fft_main(
++                    args, logger, data, rawdb, gpdb, ps, mov_node_pos,
++                    constraint_fn=trunc_node_pos_fn,
++                    skip_m1_route=True,
++                    report_gr_metrics_only=True,
++                    visualize=args.visualize_cgmap,
++                )
++                ps.rerun_route = False
++                ps.push_gr_sol(gr_metrics, hpwl, overflow, mov_node_pos)
+             route_fn=None
+             if ps.use_route_force:
+                 route_fn=calc_route_force
+             ps.prev_optimizer_cnt = ps.curr_optimizer_cnt
+-            if ps.use_cell_inflate or ps.use_route_force:
++            if (
++                ps.use_cell_inflate
++                or ps.use_route_force
++                or (equal_route_budget_control and route_actuation_frozen)
++            ):
+                 logger.info("Reset optimizer...")
+                 if new_mov_node_size is not None:
+                     # remove some fillers, we should update the size the pos
+@@ -393,6 +467,30 @@ def global_placement_main(gpdb, rawdb, ps: ParamScheduler, data: PlaceData, args
+             )
+             ps.rerun_route = False
+             ps.push_gr_sol(gr_metrics, hpwl, overflow, mov_node_pos)
++        if equal_route_budget_control:
++            actual_candidates = len(ps.gr_sol_recorder)
++            expected_candidates = ps.max_route_opt + 1
++            logger.info(
++                "Equal route budget audit | route_iters: %d/%d, GR candidates: %d/%d, "
++                "actuation frozen round: %s"
++                % (
++                    ps.curr_optimizer_cnt,
++                    ps.max_route_opt,
++                    actual_candidates,
++                    expected_candidates,
++                    str(route_actuation_frozen_round),
++                )
++            )
++            if ps.curr_optimizer_cnt != ps.max_route_opt:
++                raise RuntimeError(
++                    "equal-route-budget round mismatch: %d != %d"
++                    % (ps.curr_optimizer_cnt, ps.max_route_opt)
++                )
++            if actual_candidates != expected_candidates:
++                raise RuntimeError(
++                    "equal-route-budget GR candidate mismatch: %d != %d"
++                    % (actual_candidates, expected_candidates)
++                )
+         best_sol_gr = ps.get_best_gr_sol()
+         mov_node_pos[mov_lhs:mov_rhs].data.copy_(best_sol_gr[mov_lhs:mov_rhs])
+     if ps.enable_timing and not ps.enable_route:
+diff --git a/tests/test_momentum_inflation.py b/tests/test_momentum_inflation.py
+index 9faf7f1..f7b1489 100644
+--- a/tests/test_momentum_inflation.py
++++ b/tests/test_momentum_inflation.py
+@@ -6,6 +6,10 @@ import torch
+ 
+ from main import get_option
+ from src.run_placement import run_placement_single
++from src.run_placement_nesterov import (
++    _equal_route_budget_enabled,
++    _route_budget_can_continue,
++)
+ from src.param_scheduler import (
+     ParamScheduler,
+     _gr_solution_key,
+@@ -237,6 +241,43 @@ class MomentumInflationTest(unittest.TestCase):
+             15,
+         )
+ 
++    def test_equal_route_budget_overrides_policy_specific_round_limits(self):
++        args = SimpleNamespace(
++            equal_route_budget_control=True,
++            equal_route_budget_rounds=9,
++            max_route_opt=15,
++            max_route_opt_scalar=13,
++            max_route_opt_strong=14,
++            max_route_opt_direction=14,
++            max_route_opt_no_deflation=13,
++        )
++
++        for policy in ("legacy", "xy", "scalar", "no_deflation"):
++            self.assertEqual(_select_policy_max_route_opt(args, policy), 9)
++
++        args.equal_route_budget_rounds = 0
++        with self.assertRaisesRegex(ValueError, "must be positive"):
++            _select_policy_max_route_opt(args, "scalar")
++
++    def test_equal_route_budget_cli_defaults_and_continuation_gate(self):
++        with patch("sys.argv", ["main.py"]):
++            args = get_option()
++
++        self.assertFalse(args.equal_route_budget_control)
++        self.assertEqual(args.equal_route_budget_rounds, 15)
++        self.assertFalse(_equal_route_budget_enabled(args))
++
++        args.equal_route_budget_control = True
++        ps = SimpleNamespace(
++            enable_route=True,
++            curr_optimizer_cnt=14,
++            max_route_opt=15,
++        )
++        self.assertTrue(_equal_route_budget_enabled(args))
++        self.assertTrue(_route_budget_can_continue(args, ps))
++        ps.curr_optimizer_cnt = 15
++        self.assertFalse(_route_budget_can_continue(args, ps))
++
+     def test_routing_policy_budgets_and_via_guards_are_unified(self):
+         with patch("sys.argv", ["main.py"]):
+             args = get_option()

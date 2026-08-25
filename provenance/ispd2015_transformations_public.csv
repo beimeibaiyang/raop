@@ -1,0 +1,14 @@
+transformation,verified_coverage,validity_interpretation
+LEF property/header normalization and unsupported TOPOFSTACKONLY removal,20/20; 15/20,Parser normalization; no claim of representation equivalence
+DEF VIAS migration into generated LEF,20/20,Definitions moved rather than discarded
+DEF NONDEFAULTRULES migration into generated LEF,20/20,Definitions moved rather than discarded
+Multi-layer TRACKS splitting,20/20,Global-router parser compatibility
+Routed special-net segment rewriting,20/20,Flow compatibility; an open special net may remain
+EXCEPTPGNET added to applicable LEF obstructions,14/20,Changes selected power/ground checks
+EXCEPTPGNET added to applicable DEF routing blockages,5/20,Changes selected power/ground checks
+REGIONS/GROUPS removal,9/20,Removes fence constraints
+Fixed-component coordinate snapping,5/20,Alters specified physical coordinates
+LEF pin-rectangle grid snapping,4/20,Alters specified pin geometry
+SOURCE DIST removal,5/20,Superblue parser compatibility
+DEFAULT insertion for VIA declarations,5/20,Superblue routing compatibility
+placement.constraints copy,20/20 byte-identical,Sidecar placement-constraint file preserved

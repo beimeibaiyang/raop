@@ -1,15 +1,11 @@
 # RAOP ICCAD 2017 Equal-Route-Budget Control Protocol
 
-## Material Passport
+## Scope
 
-- Origin Skill: `academic-research-suite/experiment-agent`
-- Origin Mode: `plan` -> `run`
-- Experiment ID: `raop-iccad2017-equal-route-budget-v23`
-- Status: `PREREGISTERED_BEFORE_FORMAL_RUN`
-- Frozen ancestor: `a7ba8007c19a49c162f432b5cc119274c15ef47f`
-- Dataset: `data/raw/iccad2017_fix` (8 compatibility-processed designs)
+- Experiment commit: `c7c43fdaf309543a07bb72050b79bdd709e79324`
+- Dataset: eight compatibility-processed ICCAD 2017 designs
 - Seed: `0`
-- Deterministic: `True`
+- DEF generation: deterministic
 
 ## Research question
 

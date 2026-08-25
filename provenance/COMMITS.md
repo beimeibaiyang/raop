@@ -4,16 +4,17 @@
 
 - Experiment commit: `c7c43fdaf309543a07bb72050b79bdd709e79324`
 - Commit subject: `experiment: add equal route budget control`
-- Frozen ancestor: `a7ba8007c19a49c162f432b5cc119274c15ef47f`
-- Dataset identifier: `iccad2017_fix` (eight compatibility-processed designs)
+- Public implementation evidence: `code/equal_route_budget_implementation.diff`
+- Dataset: eight compatibility-processed ICCAD 2017 designs
 - Seed: `0`; deterministic mode: `True`
 
-`code/equal_route_budget_control.patch` is the exact one-commit patch. The
-protocol and verifier in this package are the corresponding committed files.
+The experiment commit identifier is retained because it is also published in
+`code/EQUAL_ROUTE_EXPERIMENT_COMMIT.txt`. The code-only diff exposes the
+controller changes without asserting that an undistributed ancestor is
+externally verifiable. The protocol and verifier record the corresponding
+experimental procedure.
 
-## ISPD 2015 controls and ablations
+## ISPD 2015 selector
 
-`protocols/ispd2015/experiment_control_commit_provenance.md` records the
-runtime base commits and SHA-256 identities of the patches used for the E2--E6
-experiments. Those records are intentionally kept distinct from post-run
-archival commits.
+`protocols/ispd2015/SELECTOR_PROTOCOL.md` records the five selector thresholds,
+gate order, probe behavior, and evaluation boundary used by E4 and its controls.

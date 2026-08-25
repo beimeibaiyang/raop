@@ -2,7 +2,7 @@
 
 The equal-route code change is derived from the XPlace codebase. The original
 BSD 3-Clause licence is retained in `code/LICENSE` and applies to the included
-code patch to the extent required by that licence.
+code-only implementation diff to the extent required by that licence.
 
 Unless an explicit licence is later added by the authors, the experimental
 results and documentation in this repository are shared for manuscript review

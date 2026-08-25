@@ -1,8 +1,6 @@
-threshold,base_value,decision_scope,total_decisions,changed_decisions,unchanged_decisions,stability_percent,changed_designs
-strong_hotspot_mean,0.01000000,all first-stage designs,80,0,80,100.00,
-top1_mass,0.20000000,all first-stage designs,80,1,79,98.75,mgc_matrix_mult_1
-connected_total_mass,0.10000000,all first-stage designs,80,0,80,100.00,
-hv_imbalance,3.00000000,non-legacy first-stage path,80,5,75,93.75,mgc_matrix_mult_1;mgc_matrix_mult_2;mgc_superblue16_a
-overflow_net_ratio,0.10000000,probe path only,80,2,78,97.50,mgc_des_perf_a
-positive_probe_gain,0.01000000,probe path only,80,0,80,100.00,
-negative_probe_gain,-0.10000000,probe path only,80,0,80,100.00,
+threshold,base_value,total_decisions,changed_decisions,unchanged_decisions,stability_percent,changed_designs
+strong_hotspot_mean,0.01000000,80,0,80,100.00,
+top1_mass,0.20000000,80,1,79,98.75,mgc_matrix_mult_1
+connected_total_mass,0.10000000,80,0,80,100.00,
+hv_imbalance,3.00000000,80,5,75,93.75,mgc_matrix_mult_1;mgc_matrix_mult_2;mgc_superblue16_a
+negative_probe_gain,-0.10000000,80,0,80,100.00,
