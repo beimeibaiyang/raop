@@ -1,0 +1,9 @@
+placer,design,DRWL,#DRVias,#DRCs,place_design_time,DR Total Time (s)
+xplace_route,des_perf_b_md1,1441258.98,565707,23215,-1,926
+xplace_route,des_perf_b_md2,1541317.39,570038,21349,-1,731
+xplace_route,edit_dist_1_md1,4410966.935,875666,34527,-1,1882
+xplace_route,edit_dist_a_md2,5134226.82,946151,433578,-1,1339
+xplace_route,fft_2_md2,628922.525,204403,7711,-1,1768
+xplace_route,fft_a_md2,982295.115,195171,9768,-1,833
+xplace_route,fft_a_md3,972266.085,194047,10097,-1,803
+xplace_route,pci_bridge32_a_md1,371684.57,144064,5921,-1,370

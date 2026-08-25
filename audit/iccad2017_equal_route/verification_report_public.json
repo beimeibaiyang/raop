@@ -1,0 +1,33 @@
+{
+  "def_count": 16,
+  "expected_designs": [
+    "des_perf_b_md1",
+    "des_perf_b_md2",
+    "edit_dist_1_md1",
+    "edit_dist_a_md2",
+    "fft_2_md2",
+    "fft_a_md2",
+    "fft_a_md3",
+    "pci_bridge32_a_md1"
+  ],
+  "expected_gr_calls_per_design": 16,
+  "expected_route_iters_per_design": 15,
+  "experiment_id": "raop-iccad2017-equal-route-budget-v23",
+  "failures": [],
+  "pass_count": 16,
+  "runs": [
+    {
+      "failures": [],
+      "label": "G1_EQB15",
+      "log_sha256": "03ded2b1a63cbffa94aab0afe79d94ca845badfc45bc2a84b55efff66b895146",
+      "run_all_csv_sha256": "175b5085253ad03194ef2b3b6ece1b718fa94975cfa64923ef9fe7e5eb1eb412"
+    },
+    {
+      "failures": [],
+      "label": "G4_EQB15",
+      "log_sha256": "ff8966e927c236e66e59d3b3d715a22d40eb6d0045dc97be56fb626a65b75dcd",
+      "run_all_csv_sha256": "1d6ff812a6fc02236daa7ea9efe67c707516d988ae012e53dda66b62a9e36ce6"
+    }
+  ],
+  "verdict": "PASS"
+}
