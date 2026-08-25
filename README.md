@@ -1,6 +1,6 @@
 # RAOP evidence package
 
-This private repository is a compact, auditable evidence package for the
+This public repository is a compact, auditable evidence package for the
 manuscript **RAOP: Runtime-Adaptive Operator Selection for
 Routability-Driven Placement**. It intentionally contains selected results,
 protocols, code provenance, verification scripts, and checksums rather than
@@ -60,5 +60,5 @@ reported DRC ratio of `0.958013` (a `-4.198711%` change) and the DRC W/T/L of
 ## Citation and versioning
 
 Use the tagged repository release that accompanies a manuscript version. This
-package is evidence-only; it does not alter the manuscript's data-availability
-statement or make a claim of full external Innovus reproducibility.
+package is evidence-only and does not make a claim of full external Innovus
+reproducibility.
