@@ -13,6 +13,7 @@ METRICS = {
     "DRC": "#DRCs",
     "DRWL": "DRWL",
     "DR vias": "#DRVias",
+    "Placement time": "place_design_time",
     "Per-DEF mean DR time": "DR Total Time (s)",
 }
 

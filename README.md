@@ -12,7 +12,8 @@ restricted benchmark inputs or proprietary detailed-routing artifacts.
   results used for the main comparison, selector controls, branch ablations,
   and threshold-stability analysis.
 - `results/iccad2017_equal_route/`: the final eight-instance E1-EQ (G1_EQB15)
-  and E4-EQ (G4_EQB15) detailed-routing CSVs.
+  and E4-EQ (G4_EQB15) CSVs. The placement-time field is transcribed by
+  design from the corresponding placement-run summary.
 - `audit/iccad2017_equal_route/`: redacted budget-verification artifacts. All
   16 variant--design cases pass 15 counted route-optimization rounds and 16
   global-routing candidates.

@@ -6,7 +6,8 @@
 2. Cadence Innovus execution took place in a restricted institutional
    environment. The raw logs, reports, licence configuration, and complete
    environment are not available for external redistribution.
-3. The detailed-routing metrics in the published CSVs were supplied after
+3. Placement time in the equal-route CSVs is the per-design value recorded by
+   the corresponding placement run. The detailed-routing metrics were supplied after
    three independent runs per reported DEF. DRC, DRWL, and via counts were
    invariant; the reported detailed-routing time is the arithmetic mean. This
    package cannot independently assess repeat-level time dispersion.

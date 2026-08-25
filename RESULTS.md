@@ -38,3 +38,7 @@ This equals a `-4.198711%` aggregate change. The same data give `3/0/5`
 DRC wins/ties/losses and a `+2.128495%` median per-design change. These
 quantities must be reported together; the result does not show a majority or
 typical-design advantage.
+
+Placement time is matched from each variant's corresponding placement-run
+summary. Its paired geometric E4-EQ/E1-EQ ratio is `1.051135`
+(`+5.113501%`), with a `+6.786848%` median change and `2/0/6` W/T/L.
