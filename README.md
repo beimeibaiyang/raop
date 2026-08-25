@@ -1,6 +1,6 @@
 # RAOP evidence package
 
-This public repository is a compact, auditable evidence package for the
+This repository is a compact, auditable evidence package for the
 manuscript **RAOP: Runtime-Adaptive Operator Selection for
 Routability-Driven Placement**. It intentionally contains selected results,
 protocols, code provenance, verification scripts, and checksums rather than
