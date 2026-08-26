@@ -6,7 +6,7 @@
 machine-readable source for the manuscript's E0 (no inflation), E1 (original
 legacy), and E4 (RAOP) comparison. It includes the placement times recovered
 from the corresponding placement-run summaries. The final row contains the
-arithmetic mean of the 20 matched experiment/E4 ratios used in Table 1.
+arithmetic mean of the 20 matched experiment/E4 ratios used in Table 2 of the manuscript.
 
 The E4 comparison must be read together with the processed-input boundary in
 the root README. In particular, these are not official ISPD 2015 contest

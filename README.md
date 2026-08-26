@@ -67,6 +67,6 @@ longer reproduces the manuscript values.
 
 ## Citation and versioning
 
-Use the tagged repository release that accompanies a manuscript version. This
-package is evidence-only and does not make a claim of full external Innovus
-reproducibility.
+For manuscript v55, use tag `v1.1-evidence`. The `v1.0-evidence` tag is retained
+as a historical pre-v55 package. This package is evidence-only and does not make
+a claim of full external Innovus reproducibility.
